@@ -8,8 +8,9 @@ const bookSchema = mongoose.Schema(
         keywords: { type: [String], required: true },
         publicationDate: { type: Date, required: true },
         rackNumber: { type: Number, required: true },
-        issuedBy: { type: mongoose.Schema.Types.ObjectId, required: true },
-        checkedOutBy: { type: mongoose.Schema.Types.ObjectId, required: true },
+        isIssued: { type: boolean, default: false },
+        issuedBy: { type: mongoose.Schema.Types.ObjectId, default: null },
+        checkedOutBy: { type: mongoose.Schema.Types.ObjectId, default: null },
         coverImageURL: { type: String, required: true }
     },
     {

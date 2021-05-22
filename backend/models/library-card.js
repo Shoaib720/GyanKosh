@@ -25,4 +25,6 @@ libraryCardSchema.path('bookRecord').validate(
     'Maximum book issue limit is reached'
 );
 
-module.exports = mongoose.model('LibraryCard', libraryCardSchema, 'library-cards');
+module.exports = LibraryCard = mongoose.model('LibraryCard', libraryCardSchema, 'library-cards');
+
+const 

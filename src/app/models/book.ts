@@ -8,5 +8,5 @@ export class Book{
     checkedOutBy: string | undefined;
     coverImageUrl: string | undefined;
     publicationDate: Date | undefined;
-    isDue: boolean | undefined;
+    isIssued: boolean | undefined;
 }
