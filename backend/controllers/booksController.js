@@ -282,22 +282,25 @@ const updateBook = (req, res, next) => {
 const deleteBook = (req, res, next) => {
     Book.findById({ _id: req.params.id })
     .then(book => {
-        try{
-            unlinkAsync(book.coverImageURL);
+        unlinkAsync(book.coverImageURL)
+        .then(_ => {
             book.delete();
-        }
-        catch(err){
+            res.status(204).json({
+                message: "SUCCESS"
+            });
+        })
+        .catch(err => {
             res.status(500).json({
                 message: 'INTERNAL_SERVER_ERROR',
                 error: err
             });
-        }
+        });
     })
     .catch(_ => {
         res.status(404).json({
             message: 'NOT_FOUND'
         });
-    })
+    });
 }
 
 module.exports = {
