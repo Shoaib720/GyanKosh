@@ -26,5 +26,3 @@ libraryCardSchema.path('bookRecord').validate(
 );
 
 module.exports = LibraryCard = mongoose.model('LibraryCard', libraryCardSchema, 'library-cards');
-
-const 

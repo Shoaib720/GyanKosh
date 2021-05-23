@@ -1,28 +1,31 @@
 const Book = require('../models/book');
 const libraryCardsController = require('../controllers/libraryCardsController');
 const { promisify } = require('util');
+const fs = require('fs');
 const unlinkAsync = promisify(fs.unlink);
 
-const Request2BookMapper = (req) => {
-    const book = {
-        title: req.title,
-        authors: req.authors,
-        category: req.category,
-        keywords: req.keywords,
-        publicationDate: req.publicationDate,
-        rackNumber: req.rackNumber,
-        isIssued: req.isIssued,
-        issuedBy: req.issuedBy,
-        checkedOutBy: req.checkedOutBy,
-        coverImageURL: req.coverImageURL
-    }
-    return book;
+const getBookById = (req, res, next) => {
+    Book.findById({ _id: req.params.id })
+    .then(book => {
+        book.coverImageURL = req.protocol + '://' + req.get('host') + '/' + book.coverImageURL;
+        res.status(200).json({
+            message: 'SUCCESS',
+            data: book
+        });
+    })
+    .catch(_ => {
+        res.status(404).json({
+            message: 'NOT_FOUND'
+        });
+    });
 }
 
 const getAllBooks = (req, res, next) => {
     Book.find()
     .then(
         books => {
+            // books.coverImageURL = req.protocol + '://' + req.get('host') + '/' + book.coverImageURL;
+            books.map(book => { return book.coverImageURL = req.protocol + '://' + req.get('host') + '/' + book.coverImageURL; });
             res.status(200).json({
                 message: 'SUCCESS',
                 data: books
@@ -37,8 +40,9 @@ const getAllBooks = (req, res, next) => {
 }
 
 const getBooksByTitle = (req, res, next) => {
-    Book.find({title: { "$regex": req.body.title, "$options": "i" } }) // To find substring ignoring case
+    Book.find({title: { "$regex": req.params.title, "$options": "i" } }) // To find substring ignoring case
     .then(books => {
+        books.map(book => { return book.coverImageURL = req.protocol + '://' + req.get('host') + '/' + book.coverImageURL; });
         res.status(200).json({
             message: 'SUCCESS',
             data: books
@@ -51,9 +55,10 @@ const getBooksByTitle = (req, res, next) => {
     });
 }
 
-const getBooksByAuthors = (req, res, next) => {
-    Book.find({authors: { "$regex": req.body.authors, "$options": "i" } }) // To find substring ignoring case
+const getBooksByAuthor = (req, res, next) => {
+    Book.find({authors: { "$regex": req.params.author, "$options": "i" } }) // To find substring ignoring case
     .then(books => {
+        books.map(book => { return book.coverImageURL = req.protocol + '://' + req.get('host') + '/' + book.coverImageURL; });
         res.status(200).json({
             message: 'SUCCESS',
             data: books
@@ -67,8 +72,9 @@ const getBooksByAuthors = (req, res, next) => {
 }
 
 const getBooksByCategory = (req, res, next) => {
-    Book.find({category: { "$regex": req.body.category, "$options": "i" } }) // To find substring ignoring case
+    Book.find({category: { "$regex": req.params.category, "$options": "i" } }) // To find substring ignoring case
     .then(books => {
+        books.map(book => { return book.coverImageURL = req.protocol + '://' + req.get('host') + '/' + book.coverImageURL; });
         res.status(200).json({
             message: 'SUCCESS',
             data: books
@@ -82,17 +88,18 @@ const getBooksByCategory = (req, res, next) => {
 }
 
 const getBooksByPublicationDate = (req, res, next) => {
-    if(req.body.startDate && req.body.endDate){
+    if(req.params.date){
         Book.find(
             {
                 publicationDate: {
-                    $gte: new Date(new Date(req.body.startDate).setHours(00,00,00)),
-                    $lte: new Date(new Date(req.body.endDate).setHours(23,59,59))
+                    $gte: new Date(new Date(req.params.date).setHours(00,00,00)),
+                    $lte: new Date(new Date(req.params.date).setHours(23,59,59))
                 }
             }
         )
         .sort({ publicationDate: 'asc' })
         .then(books => {
+            books.map(book => { return book.coverImageURL = req.protocol + '://' + req.get('host') + '/' + book.coverImageURL; });
             res.status(200).json({
                 message: 'SUCCESS',
                 data: books
@@ -137,6 +144,7 @@ const issueBook = (req, res, next) => {
                 dueOn: new Date(new Date().setDate(today.getDate() + 10))
             }
             const updatedLibraryCard = libraryCardsController.enterBookIssuingDetails(issuingDetails);
+            book.coverImageURL = req.protocol + '://' + req.get('host') + '/' + book.coverImageURL;
             res.status(200).json({
                 message: 'SUCCESS',
                 data: {
@@ -205,11 +213,12 @@ const addBook = (req, res, next) => {
         isIssued: req.body.isIssued,
         issuedBy: req.body.issuedBy,
         checkedOutBy: req.body.checkedOutBy,
-        coverImageURL: 'uploads/images/cover-images/' + req.coverImage.filename
+        coverImageURL: 'uploads/images/cover-images/' + req.file.filename
     });
     imagePath = book.coverImageURL;
     book.save()
     .then(uploadedBook => {
+        uploadedBook.coverImageURL = req.protocol + '://' + req.get('host') + '/' + uploadedBook.coverImageURL;
         res.status(201).json({
             message: 'SUCCESS',
             data: uploadedBook
@@ -218,18 +227,89 @@ const addBook = (req, res, next) => {
     .catch(err => {
         unlinkAsync(imagePath);
         res.status(500).json({
-            message: 'INTERNAL_SERVER_ERROR'
+            message: 'INTERNAL_SERVER_ERROR',
+            error: err
+        });
+    })
+}
+
+const updateBook = (req, res, next) => {
+    const book = {
+        title: req.body.title,
+        authors: req.body.authors.split(',').map(items => {return items.trim()}),
+        category: req.body.category,
+        keywords: req.body.keywords.split(',').map(items => {return items.trim()}),
+        publicationDate: req.body.publicationDate,
+        rackNumber: req.body.rackNumber,
+        isIssued: req.body.isIssued,
+        issuedBy: req.body.issuedBy,
+        checkedOutBy: req.body.checkedOutBy,
+        coverImageURL: 'uploads/images/cover-images/' + req.file.filename
+    };
+    let imagePath = book.coverImageURL;
+    Book.findByIdAndUpdate(
+        { _id: req.body.id },
+        {
+            title: req.body.title,
+            authors: req.body.authors.split(',').map(items => {return items.trim()}),
+            category: req.body.category,
+            keywords: req.body.keywords.split(',').map(items => {return items.trim()}),
+            publicationDate: req.body.publicationDate,
+            rackNumber: req.body.rackNumber,
+            isIssued: req.body.isIssued,
+            issuedBy: req.body.issuedBy,
+            checkedOutBy: req.body.checkedOutBy,
+            coverImageURL: 'uploads/images/cover-images/' + req.file.filename
+        },
+        { new: true }
+    )
+    .then(updatedBook => {
+        updatedBook.coverImageURL = req.protocol + '://' + req.get('host') + '/' + updatedBook.coverImageURL;
+        res.status(201).json({
+            message: 'SUCCESS',
+            data: updatedBook
+        });
+    })
+    .catch(err => {
+        unlinkAsync(imagePath);
+        res.status(500).json({
+            message: 'INTERNAL_SERVER_ERROR',
+            error: err
+        });
+    })
+}
+
+const deleteBook = (req, res, next) => {
+    Book.findById({ _id: req.params.id })
+    .then(book => {
+        try{
+            unlinkAsync(book.coverImageURL);
+            book.delete();
+        }
+        catch(err){
+            res.status(500).json({
+                message: 'INTERNAL_SERVER_ERROR',
+                error: err
+            });
+        }
+    })
+    .catch(_ => {
+        res.status(404).json({
+            message: 'NOT_FOUND'
         });
     })
 }
 
 module.exports = {
+    getBookById,
     getAllBooks,
     getBooksByTitle,
-    getBooksByAuthors,
+    getBooksByAuthor,
     getBooksByCategory,
     getBooksByPublicationDate,
     issueBook,
     returnBook,
-    addBook
+    addBook,
+    updateBook,
+    deleteBook,
 }
