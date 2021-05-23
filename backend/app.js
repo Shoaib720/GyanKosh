@@ -3,12 +3,7 @@ const path = require('path');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 
-
-
-const noticeRoutes = require('./routes/notices');
-const usersRoutes = require('./routes/users');
-const queriesRoutes = require('./routes/queries');
-const papersRoutes = require('./routes/papers');
+const booksRoute = require('./routes/books');
 
 const app = express();
 
@@ -21,7 +16,7 @@ const app = express();
 
 
 // Connect to ATLAS
-const REMOTE_URL = 'mongodb+srv://shoaib:' + process.env.PRIME_MANAGER_ATLAS_KEY + '@myfreecluster.uqauj.mongodb.net/gyankosh?retryWrites=true&w=majority';
+const REMOTE_URL = 'mongodb+srv://shoaib:' + process.env.MONGO_ATLAS_KEY + '@myfreecluster.uqauj.mongodb.net/gyankosh?retryWrites=true&w=majority';
 mongoose.connect(REMOTE_URL, { useNewUrlParser: true, useUnifiedTopology: true });
 
 
@@ -29,7 +24,7 @@ mongoose.connect(REMOTE_URL, { useNewUrlParser: true, useUnifiedTopology: true }
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
-app.use('/uploads', express.static(path.join('backend/uploads')));
+app.use('/uploads', express.static(path.join('./uploads')));
 
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin','*');
@@ -38,6 +33,6 @@ app.use((req, res, next) => {
   next();
 })
 
-app.use('/api/v1/users', usersRoutes);
+app.use('/api/v1/books', booksRoute);
 
 module.exports = app;
