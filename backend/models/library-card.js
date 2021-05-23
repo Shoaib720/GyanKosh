@@ -12,7 +12,6 @@ const libraryCardSchema = mongoose.Schema(
                 dueOn: { type: Date, required: true }
             },
         ],
-        
     }
 );
 

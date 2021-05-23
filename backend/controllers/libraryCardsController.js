@@ -59,8 +59,47 @@ const generateFine = (cardId) => {
     })
 }
 
+const getCardById = (req, res, next) => {
+    LibraryCard.findById({ _id: req.params.id })
+    .then(card => {
+        res.status(200).json({
+            message: 'SUCCESS',
+            data: card
+        });
+    })
+    .catch(_ => {
+        res.status(404).json({
+            message: 'NOT_FOUND'
+        });
+    });
+}
+
+const createLibraryCard = (cardHolderDetails) => {
+    var card = new LibraryCard({
+        cardHolderId: cardHolderDetails.id,
+        cardHolderName: cardHolderDetails.name
+    });
+    card.save()
+    .then(createdCard => { return createdCard._id })
+    .catch(err => {
+        res.status(500).json({
+            message: 'INTERNAL_SERVER_ERROR',
+            error: err
+        });
+    })
+}
+
+const deleteLibraryCard = (cardId) => {
+    LibraryCard.findByIdAndDelete({ _id: cardId })
+    .then(_ => { return true })
+    .catch(_ => { return false });
+}
+
 module.exports = {
     isIssuable,
     enterBookIssuingDetails,
-    generateFine
+    generateFine,
+    getCardById,
+    createLibraryCard,
+    deleteLibraryCard
 }
