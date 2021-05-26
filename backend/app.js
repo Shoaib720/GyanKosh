@@ -22,8 +22,8 @@ mongoose.connect(REMOTE_URL, { useNewUrlParser: true, useUnifiedTopology: true }
 
 // ===========================================================================================
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: false}));
+app.use(express.json());
+app.use(express.urlencoded({extended: false}));
 app.use('/uploads', express.static(path.join('./uploads')));
 
 app.use((req, res, next) => {
@@ -32,7 +32,8 @@ app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Methods','GET, POST, PUT, UPDATE, DELETE, OPTIONS');
   next();
 })
-
 app.use('/api/v1/books', booksRoute);
+
+// Holy shit it worked!
 
 module.exports = app;
