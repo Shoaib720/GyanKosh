@@ -1,5 +1,5 @@
 const LibraryCard = require('../models/library-card');
-const CollectedFines = require('../models/collected-fines');
+const CollectedFines = require('../models/fine');
 
 const isIssuable = (cardId) => {
     LibraryCard.findById({ _id: cardId })

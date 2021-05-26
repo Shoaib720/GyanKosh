@@ -1,8 +1,7 @@
 const express = require('express');
 const path = require('path');
-const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-
+const { graphqlHTTP } = require('express-graphql');
 const booksRoute = require('./routes/books');
 
 const app = express();
@@ -32,7 +31,12 @@ app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Methods','GET, POST, PUT, UPDATE, DELETE, OPTIONS');
   next();
 })
-app.use('/api/v1/books', booksRoute);
+
+app.use('/graphql', graphqlHTTP({
+  schema: null,
+  rootValue: null,
+  graphiql: true
+}))
 
 // Holy shit it worked!
 

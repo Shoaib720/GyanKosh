@@ -4,10 +4,14 @@ const uniqueValidator = require('mongoose-unique-validator');
 const userSchema = mongoose.Schema(
     {
         name: { type: String, required: true },
-        role: { type: String, enum: ['customer', 'librarian', 'admin'] },
+        role: { type: String, enum: ['customer', 'librarian', 'admin'], required: true },
         email: { type: String, required: true, unique: true },
         password: { type: String, required: true },
-        cardId: { type: mongoose.Schema.Types.ObjectId, default: null }
+        card: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'LibraryCard',
+            default: null
+        }
     },
     {
         timestamps: true,
