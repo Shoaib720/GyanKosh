@@ -62,6 +62,14 @@ module.exports = buildSchema(`
         updatedAt: String!
     }
 
+    type AuthData {
+        _id: ID!
+        name: String!
+        role: String!
+        email: String!
+        token: String!
+    }
+
     input UserInput {
         name: String!
         role: String!
@@ -86,13 +94,13 @@ module.exports = buildSchema(`
         category: String!
         publicationDate: String!
         rack: ID!
-        isIssued: Boolean
-        issuedBy: User
-        checkedOutBy: User
+        isIssued: Boolean!
+        issuedBy: ID!
+        checkedOutBy: ID!
         coverImageUrl: String
     }
 
-    input BookRecord {
+    input BookRecordInput {
         book: ID!
         issuedOn: String!
         dueOn: String!
@@ -106,11 +114,30 @@ module.exports = buildSchema(`
     }
 
     type RootQuery {
-        fines: [Fine!]!
+        books: [Book!]!
+        booksByAuthor(author: String!): [Book!]!
+        booksBytitle(title: String!): [Book!]!
+        booksByCategory(category: String!): [Book!]!
+        booksByPublicationDate(date: String!): [Book!]!
+
+        users: [User!]!
+        usersByRole(role: String!): [User!]!
+
+        racks: [Rack!]!
+
     }
 
     type RootMutation {
+        addBook(bookInput: BookInput!): Book!
+        updateBook(bookInput: BookInput!): Book!
+        deleteBook(bookId: ID!): String!
+        issueBook(bookId: ID!, customerId: ID!): String!
+        returnBook(bookId: ID!, customerId: ID!): String!
 
+        login(email: String!, password: String!): AuthData!
+        signup(userInput: UserInput!): User!
+        update(userInput: UserInput!): User!
+        delete(userId: ID!): String!
     }
 
     schema {

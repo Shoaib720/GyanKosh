@@ -1,5 +1,11 @@
 const mongoose = require('mongoose');
 
+const issueLimit = bookRecord => {
+    if(!bookRecord) return false;
+    if(bookRecord.length > 5) return false;
+    else return true;
+}
+
 const libraryCardSchema = mongoose.Schema(
     {
         cardHolder: {
@@ -20,11 +26,5 @@ const libraryCardSchema = mongoose.Schema(
         versionKey: false
     }
 );
-
-const issueLimit = bookRecord => {
-    if(!bookRecord) return false;
-    if(bookRecord.length > 5) return false;
-    else return true;
-}
 
 module.exports = LibraryCard = mongoose.model('LibraryCard', libraryCardSchema, 'library-cards');

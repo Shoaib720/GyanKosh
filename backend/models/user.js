@@ -24,8 +24,8 @@ userSchema.plugin(uniqueValidator, {
     message: 'Error, expected {PATH} to be unique.'
 });
 
-export const CUSTOMER = 'customer';
-export const LIBRARIAN = 'librarian';
-export const ADMIN = 'admin';
+exports.CUSTOMER = 'customer';
+exports.LIBRARIAN = 'librarian';
+exports.ADMIN = 'admin';
 
 module.exports = mongoose.model('User', userSchema, 'users');

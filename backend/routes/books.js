@@ -35,7 +35,7 @@ router.get('/byTitle/:title', booksController.getBooksByTitle);
 
 router.get('/byCategory/:category', booksController.getBooksByCategory);
 
-router.get('/byAuthor/:author', booksController.getBooksByAuthors);
+router.get('/byAuthor/:author', booksController.getBooksByAuthor);
 
 router.get('byPublicationDate/:date', booksController.getBooksByPublicationDate);
 

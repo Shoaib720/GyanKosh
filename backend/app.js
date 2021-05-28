@@ -2,7 +2,8 @@ const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
 const { graphqlHTTP } = require('express-graphql');
-const booksRoute = require('./routes/books');
+const graphQLSchema = require('./graphql/schema/index');
+const graphQLResolver = require('./graphql/resolver/index');
 
 const app = express();
 
@@ -33,8 +34,8 @@ app.use((req, res, next) => {
 })
 
 app.use('/graphql', graphqlHTTP({
-  schema: null,
-  rootValue: null,
+  schema: graphQLSchema,
+  rootValue: graphQLResolver,
   graphiql: true
 }))
 
